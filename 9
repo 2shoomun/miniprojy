@@ -1,0 +1,38 @@
+Design an HTML program that Connects to MySQL Database and perform the following actions using node.js
+1.	INSERT entries INTO Table
+2.	ORDER entries BY a column
+3.	UPDATE Table Entries
+4.	DELETE Table Entries
+
+/ include node fs module
+var fs = require('fs');
+var data ='Learn Node FS module';
+ 
+// write File function with filename, content and call back function
+fs.writeFile('newfile.txt', data, function (err) {
+  if (err) throw err;
+  console.log('File is created successfully.');
+});
+
+$ node createFileExample.js
+File is created successfully.
+
+// include file system module
+var fs = require('fs');
+ 
+// read file sample.html
+fs.readFile('sample.html',
+    // callback function that is called when reading file is done
+    function(err, data) {       
+        if (err) throw err;
+        // data is a buffer containing file content
+        console.log(data.toString('utf8'))
+});
+
+$ node readFileExample.js
+<html>
+<body>
+<h1>Header</h1>
+<p>I have learned to read a file in Node.js.</p>
+</body>
+</html>
