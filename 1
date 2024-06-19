@@ -1,115 +1,58 @@
-I.	Design HTML page that contains the following tags <p>, <a>, <img>, <h1>…<h6>, <div>, <color selector>, <date time selector>, <month selector>, <url selector>.
+import numpy as np
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTML Tags Example</title>
-</head>
-<body>
-  <h1>HTML Tags Example</h1>
-  
-  <p>This is a paragraph.</p>
-  
-  <a href="https://www.example.com">This is a link</a>
-  
-  <img src="https://via.placeholder.com/150" alt="Placeholder Image">
-  
-  <h2>This is a heading 2</h2>
-  
-  <h3>This is a heading 3</h3>
-  
-  <h4>This is a heading 4</h4>
-  
-  <h5>This is a heading 5</h5>
-  
-  <h6>This is a heading 6</h6>
-  
-  <div style="background-color: lightblue; padding: 10px;">
-    This is a div with a light blue background color.
-  </div>
-  
-  <label for="color">Select a color:</label>
-  <input type="color" id="color" name="color">
-  
-  <label for="date">Select a date:</label>
-  <input type="date" id="date" name="date">
-  
-  <label for="month">Select a month:</label>
-  <input type="month" id="month" name="month">
-  
-  <label for="url">Enter a URL:</label>
-  <input type="url" id="url" name="url">
-</body>
-</html>
+# Hebbian Learning Rule
+def hebbian_learning_rule(input_pattern, weight_matrix):
+    return weight_matrix + np.outer(input_pattern, input_pattern)
 
- 
-II.	Write JavaScript to validate the following fields of the Registration page.
-First Name (Name should contain alphabets and the length should not be less than 6 characters).
-Password (Password should not be less than 6 characters in length).
-E-mail ID (should not contain any invalid and must follow the standard pattern name@domain.com)
-Mobile Number (The phone number should contain 10 numbers)
+# Perceptron Learning Rule
+def perceptron_learning_rule(input_pattern, target, weight_vector, learning_rate):
+    prediction = np.dot(weight_vector, input_pattern)
+    error = target - prediction
+    return weight_vector + learning_rate * error * input_pattern
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registration Form</title>
-</head>
-<body>
-<h1>Registration Form</h1>
-<form id="registrationForm" onsubmit="return validateForm()">
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName"><br><br>
-    
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password"><br><br>
-    
-    <label for="email">E-mail ID:</label>
-    <input type="email" id="email" name="email"><br><br>
-    
-    <label for="mobile">Mobile Number:</label>
-    <input type="tel" id="mobile" name="mobile"><br><br>
-    
-    <input type="submit" value="Register">
-</form>
+# Delta Learning Rule
+def delta_learning_rule(input_pattern, target, weight_matrix, learning_rate):
+    prediction = np.dot(weight_matrix, input_pattern)
+    error = target - prediction
+    return weight_matrix + learning_rate * np.outer(error, input_pattern)
 
-<script>
-function validateForm() {
-    var firstName = document.getElementById("firstName").value;
-    var password = document.getElementById("password").value;
-    var email = document.getElementById("email").value;
-    var mobile = document.getElementById("mobile").value;
-    
-    // Validate First Name
-    if (!/^[a-zA-Z]{6,}$/.test(firstName)) {
-        alert("First Name should contain alphabets and the length should not be less than 6 characters.");
-        return false;
-    }
-    
-    // Validate Password
-    if (password.length < 6) {
-        alert("Password should not be less than 6 characters in length.");
-        return false;
-    }
-    
-    // Validate E-mail ID
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert("Invalid E-mail ID. Please enter a valid E-mail ID.");
-        return false;
-    }
-    
-    // Validate Mobile Number
-    if (!/^\d{10}$/.test(mobile)) {
-        alert("Mobile Number should contain 10 numbers.");
-        return false;
-    }
-    
-    // All fields are valid
-    return true;
-}
-</script>
-</body>
-</html>
+# Correlation Learning Rule
+def correlation_learning_rule(input_pattern, weight_matrix):
+    return weight_matrix + np.outer(input_pattern, input_pattern)
+
+# Out Star Learning Rule
+def out_star_learning_rule(input_pattern, weight_matrix, learning_rate):
+    return weight_matrix + learning_rate * np.outer(input_pattern, input_pattern)
+
+input_size = 3
+
+# Initialize weights with random values
+hebbian_weights = np.random.rand(input_size, input_size)
+perceptron_weights = np.random.rand(input_size)
+delta_weights = np.random.rand(input_size, input_size)
+correlation_weights = np.random.rand(input_size, input_size)
+out_star_weights = np.random.rand(input_size, input_size)
+
+print("Hebbian Weights:", hebbian_weights)
+print("\nPerceptron Weights:", perceptron_weights)
+print("\nDelta Weights:", delta_weights)
+print("\nCorrelation Weights:", correlation_weights)
+print("\nOut Star Weights:", out_star_weights)
+
+# Sample input and target data
+input_pattern = np.array([0.2, 0.5, 0.8])
+target = 1
+
+# Apply learning rules
+hebbian_weights_updated = hebbian_learning_rule(input_pattern, hebbian_weights)
+perceptron_weights_updated = perceptron_learning_rule(input_pattern, target, perceptron_weights, learning_rate=0.1)
+delta_weights_updated = delta_learning_rule(input_pattern, target, delta_weights, learning_rate=0.1)
+correlation_weights_updated = correlation_learning_rule(input_pattern, correlation_weights)
+out_star_weights_updated = out_star_learning_rule(input_pattern, out_star_weights, learning_rate=0.1)
+
+# Display updated weights
+print("Hebbian Updated Weights:", hebbian_weights_updated)
+print("\nPerceptron Updated Weights:", perceptron_weights_updated)
+print("\nDelta Updated Weights:", delta_weights_updated)
+print("\nCorrelation Updated Weights:", correlation_weights_updated)
+print("\nOut Star Updated Weights:", out_star_weights_updated)
