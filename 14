@@ -1,0 +1,81 @@
+# Import libraries
+import tensorflow as tf
+from tensorflow.keras.layers import Dense, Reshape, Flatten, Conv2D, Conv2DTranspose, LeakyReLU, Dropout
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load and preprocess the dataset (MNIST for example)
+(x_train, _), (_, _) = tf.keras.datasets.mnist.load_data()
+x_train = (x_train - 127.5) / 127.5  # Normalize the images to [-1, 1]
+x_train = np.expand_dims(x_train, axis=-1)  # Add channel dimension
+
+# Generator model
+def build_generator():
+    model = Sequential()
+    model.add(Dense(7 * 7 * 256, use_bias=False, input_shape=(100,)))
+    model.add(Reshape((7, 7, 256)))
+    model.add(Conv2DTranspose(128, (5, 5), strides=(1, 1), padding='same', use_bias=False))
+    model.add(LeakyReLU())
+    model.add(Conv2DTranspose(64, (5, 5), strides=(2, 2), padding='same', use_bias=False))
+    model.add(LeakyReLU())
+    model.add(Conv2DTranspose(1, (5, 5), strides=(2, 2), padding='same', use_bias=False, activation='tanh'))
+    return model
+
+# Discriminator model
+def build_discriminator():
+    model = Sequential()
+    model.add(Conv2D(64, (5, 5), strides=(2, 2), padding='same', input_shape=[28, 28, 1]))
+    model.add(LeakyReLU())
+    model.add(Dropout(0.3))
+    model.add(Conv2D(128, (5, 5), strides=(2, 2), padding='same'))
+    model.add(LeakyReLU())
+    model.add(Dropout(0.3))
+    model.add(Flatten())
+    model.add(Dense(1))
+    return model
+
+# Compile the models
+generator = build_generator()
+discriminator = build_discriminator()
+discriminator.compile(loss='binary_crossentropy', optimizer=Adam(1e-4), metrics=['accuracy'])
+
+# Combined model (generator + discriminator)
+discriminator.trainable = False
+gan = Sequential([generator, discriminator])
+gan.compile(loss='binary_crossentropy', optimizer=Adam(1e-4))
+
+# Training the GAN
+EPOCHS = 10000
+BATCH_SIZE = 256
+HALF_BATCH = BATCH_SIZE // 2
+
+for epoch in range(EPOCHS):
+    # Train the discriminator
+    idx = np.random.randint(0, x_train.shape[0], HALF_BATCH)
+    real_images = x_train[idx]
+    noise = np.random.normal(0, 1, (HALF_BATCH, 100))
+    fake_images = generator.predict(noise)
+    d_loss_real = discriminator.train_on_batch(real_images, np.ones((HALF_BATCH, 1)))
+    d_loss_fake = discriminator.train_on_batch(fake_images, np.zeros((HALF_BATCH, 1)))
+    d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+
+    # Train the generator
+    noise = np.random.normal(0, 1, (BATCH_SIZE, 100))
+    valid_y = np.array([1] * BATCH_SIZE)
+    g_loss = gan.train_on_batch(noise, valid_y)
+
+    if epoch % 1000 == 0:
+        print(f"{epoch} [D loss: {d_loss[0]} | D accuracy: {d_loss[1]}] [G loss: {g_loss}]")
+
+# Generate and display images
+noise = np.random.normal(0, 1, (25, 100))
+generated_images = generator.predict(noise)
+
+plt.figure(figsize=(10, 10))
+for i in range(generated_images.shape[0]):
+    plt.subplot(5, 5, i + 1)
+    plt.imshow(generated_images[i, :, :, 0], cmap='gray')
+    plt.axis('off')
+plt.show()
