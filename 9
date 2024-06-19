@@ -1,38 +1,75 @@
-Design an HTML program that Connects to MySQL Database and perform the following actions using node.js
-1.	INSERT entries INTO Table
-2.	ORDER entries BY a column
-3.	UPDATE Table Entries
-4.	DELETE Table Entries
+# Clone the Mask R-CNN repository
+!git clone https://github.com/akTwelve/Mask_RCNN.git
 
-/ include node fs module
-var fs = require('fs');
-var data ='Learn Node FS module';
- 
-// write File function with filename, content and call back function
-fs.writeFile('newfile.txt', data, function (err) {
-  if (err) throw err;
-  console.log('File is created successfully.');
-});
+# Import libraries
+import os
+import sys
+import skimage.io
+import matplotlib.pyplot as plt
+import cv2
+import time
+import numpy as np
+import tensorflow as tf
 
-$ node createFileExample.js
-File is created successfully.
+# Root directory of the project
+ROOT_DIR = "Mask_RCNN"
 
-// include file system module
-var fs = require('fs');
- 
-// read file sample.html
-fs.readFile('sample.html',
-    // callback function that is called when reading file is done
-    function(err, data) {       
-        if (err) throw err;
-        // data is a buffer containing file content
-        console.log(data.toString('utf8'))
-});
+# Import maskrcnn (mrcnn folder) as module
+sys.path.append(ROOT_DIR)
 
-$ node readFileExample.js
-<html>
-<body>
-<h1>Header</h1>
-<p>I have learned to read a file in Node.js.</p>
-</body>
-</html>
+# Import modules from Mask R-CNN
+from mrcnn import utils
+import mrcnn.model as modellib
+from mrcnn import visualize
+
+# Directory to save logs and trained model
+MODEL_DIR = os.path.join(ROOT_DIR, "logs")
+
+# Path to the image
+IMAGE_PATH = "/content/Mask_RCNN/images/1045023827_4ec3e8ba5c_z.jpg"
+
+# Download the COCO dataset
+sys.path.append(os.path.join(ROOT_DIR, "samples/coco/"))
+import coco
+
+# Path to COCO model weights
+COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
+if not os.path.exists(COCO_MODEL_PATH):
+    utils.download_trained_weights(COCO_MODEL_PATH)
+
+# Load the model configuration
+class InferenceConfig(coco.CocoConfig):
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+
+config = InferenceConfig()
+config.display()
+
+# Load the Mask R-CNN model
+model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR, config=config)
+tf.keras.Model.load_weights(model.keras_model, COCO_MODEL_PATH, by_name=True)
+
+# Class names from the COCO dataset
+class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 
+               'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 
+               'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee', 
+               'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 
+               'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 
+               'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 
+               'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 
+               'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear', 
+               'hair drier', 'toothbrush']
+
+# Load and display the image
+image = skimage.io.imread(IMAGE_PATH)
+plt.imshow(image)
+plt.title('Original')
+plt.axis('off')
+plt.show()
+
+# Perform object detection and segmentation
+results = model.detect([image], verbose=1)
+r = results[0]
+
+# Visualize the results
+visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'], class_names, r['scores'])
