@@ -1,65 +1,84 @@
-Displaying XML with XSLT
-XSLT (eXtensible Stylesheet Language Transformations) is the recommended style sheet language for XML.
-XSLT is far more sophisticated than CSS. With XSLT you can add/remove elements and attributes to or from the output file. You can also rearrange and sort elements, perform tests and make decisions about which elements to hide and display, and a lot more.
-XSLT uses XPath to find information in an XML document.
-________________________________________
-XSLT Example
-We will use the following XML document:
-<?xml version="1.0" encoding="UTF-8"?>
-<breakfast_menu>
+import numpy as np
+import matplotlib.pyplot as plt
 
-<food>
-<name>Belgian Waffles</name>
-<price>$5.95</price>
-<description>Two of our famous Belgian Waffles with plenty of real maple syrup</description>
-<calories>650</calories>
-</food>
+def plot_sigmoid():
+    x = np.linspace(-10, 10, 100)
+    y = 1 / (1 + np.exp(-x))
+    plt.plot(x, y)
+    plt.xlabel('Input')
+    plt.ylabel('Sigmoid Output')
+    plt.title('Sigmoid Activation Function')
+    plt.grid(True)
+    plt.show()
 
-<food>
-<name>Strawberry Belgian Waffles</name>
-<price>$7.95</price>
-<description>Light Belgian waffles covered with strawberries and whipped cream</description>
-<calories>900</calories>
-</food>
+def plot_tanh():
+    x = np.linspace(-10, 10, 100)
+    tanh = np.tanh(x)
+    plt.plot(x, tanh)
+    plt.title("Hyperbolic Tangent (tanh) Activation Function")
+    plt.xlabel("x")
+    plt.ylabel("tanh(x)")
+    plt.grid(True)
+    plt.show()
 
-<food>
-<name>Berry-Berry Belgian Waffles</name>
-<price>$8.95</price>
-<description>Light Belgian waffles covered with an assortment of fresh berries and whipped cream</description>
-<calories>900</calories>
-</food>
+def plot_relu():
+    x = np.linspace(-10, 10, 100)
+    relu = np.maximum(0, x)
+    plt.plot(x, relu)
+    plt.title("ReLU Activation Function")
+    plt.xlabel("x")
+    plt.ylabel("ReLU(x)")
+    plt.grid(True)
+    plt.show()
 
-<food>
-<name>French Toast</name>
-<price>$4.50</price>
-<description>Thick slices made from our homemade sourdough bread</description>
-<calories>600</calories>
-</food>
+def plot_leaky_relu():
+    x = np.linspace(-10, 10, 100)
+    def leaky_relu(x, alpha=0.1):
+        return np.where(x >= 0, x, alpha * x)
+    leaky_relu_values = leaky_relu(x)
+    plt.plot(x, leaky_relu_values)
+    plt.title("Leaky ReLU Activation Function")
+    plt.xlabel("x")
+    plt.ylabel("Leaky ReLU(x)")
+    plt.grid(True)
+    plt.show()
 
-<food>
-<name>Homestyle Breakfast</name>
-<price>$6.95</price>
-<description>Two eggs, bacon or sausage, toast, and our ever-popular hash browns</description>
-<calories>950</calories>
-</food>
+def softmax(z):
+    exp_z = np.exp(z)
+    class_labels = ["Seal", "Panda", "Duck"]
+    soft_ac = [i / sum(exp_z) for i in exp_z]
+    plot_softmax(soft_ac, class_labels)
 
-</breakfast_menu>
-Xslt stylesheet
-<?xml version="1.0" encoding="UTF-8"?>
-<html xsl:version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<body style="font-family:Arial;font-size:12pt;background-color:#EEEEEE">
-<xsl:for-each select="breakfast_menu/food">
-  <div style="background-color:teal;color:white;padding:4px">
-    <span style="font-weight:bold"><xsl:value-of select="name"/> - </span>
-    <xsl:value-of select="price"/>
-    </div>
-  <div style="margin-left:20px;margin-bottom:1em;font-size:10pt">
-    <p>
-    <xsl:value-of select="description"/>
-    <span style="font-style:italic"> (<xsl:value-of select="calories"/> calories per serving)</span>
-    </p>
-  </div>
-</xsl:for-each>
-</body>
-</html>
- 
+def plot_softmax(probabilities, class_labels):
+    plt.bar(class_labels, probabilities)
+    plt.xlabel("Class")
+    plt.ylabel("Probability")
+    plt.title("Softmax Output")
+    plt.show()
+
+while True:
+    print("\nMAIN MENU")
+    print("1. Sigmoid")
+    print("2. Hyperbolic tangent")
+    print("3. Rectified Linear Unit")
+    print("4. Leaky ReLU")
+    print("5. Softmax")
+    print("6. Exit")
+    choice = int(input("Enter the Choice:"))
+
+    if choice == 1:
+        plot_sigmoid()
+    elif choice == 2:
+        plot_tanh()
+    elif choice == 3:
+        plot_relu()
+    elif choice == 4:
+        plot_leaky_relu()
+    elif choice == 5:
+        x = np.array([1, 2, 3])
+        result = softmax(x)
+        print(result)
+    elif choice == 6:
+        break
+    else:
+        print("Oops! Incorrect Choice.")
