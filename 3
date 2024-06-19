@@ -1,48 +1,65 @@
-I.	Develop and demonstrate JavaScript with POP-UP boxes and functions for the following problem:
-      Input: A number n obtained using prompt 
-            Output: Factorial of n number using alert
-// Get the number n from the user
-var n = prompt("Enter a number:");
+#import library
+import numpy as np
 
-// Validate if n is a valid number
-if (!isNaN(n) && n > 0) {
-    // Calculate the factorial of n
-    var factorial = 1;
-    for (var i = 1; i <= n; i++) {
-        factorial *= i;
-    }
-    
-    // Display the factorial using alert
-    alert("The factorial of " + n + " is " + factorial);
-} else {
-    // Display an error message if n is not a valid number
-    alert("Please enter a valid positive number.");
-}
- 
+class Perceptron:
+    """
+    A simple perceptron classifier.
+    """
+    def __init__(self, weights=None, bias=0):
+        self.weights = weights
+        self.bias = bias
 
-II.	     Design a calculator using node.js with functions add, subtract and multiply. And use the Calculator module in another Node.js file.
-// Returns addition of two numbers
-exports.add = function (a, b) {
-    return a+b;
-}; 
- 
-// Returns difference of two numbers
-exports.subtract = function (a, b) {
-    return a-b;
-}; 
- 
-// Returns product of two numbers
-exports.multiply = function (a, b) {
-    return a*b;
-};
+    def initialize(self, n_features):
+        """Set initial w and b as zeros if not provided"""
+        if self.weights is None:
+            self.weights = np.zeros(n_features)
+        if self.bias is None:
+            self.bias = 0
+        return
 
+    def predict(self, inputs):
+        """
+        Predict the class labels for new input data.
+        Calculate the step activation function.
+        """
+        activation = np.dot(inputs, self.weights) + self.bias
+        return 1 if activation > 0 else 0
 
-var calculator = require('./calculator');
- 
-var a=10, b=5;
- 
-console.log("Addition : "+calculator.add(a,b));
-console.log("Subtraction : "+calculator.subtract(a,b));
-console.log("Multiplication : "+calculator.multiply(a,b));
+    def train(self, X, y, epochs=100, learning_rate=0.1):
+        """Train the perceptron using the input data and target labels."""
+        # Initialize the weights and bias
+        self.initialize(X.shape[1])
+        for epoch in range(epochs):
+            for inputs, label in zip(X, y):
+                # Get prediction
+                y_pred = self.predict(inputs)
+                # Calculate delta error
+                error = label - y_pred
+                # Update weights and bias
+                self.weights += learning_rate * error * inputs
+                self.bias += learning_rate * error
+        return
 
- 
+# Example usage with customized weights
+X_train = np.array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 1]])
+y_train = np.array([0, 0, 0, 1])
+custom_weights = np.array([0.2, 0.4, 0.6]) # Customized weights
+custom_bias = -0.5 # Customized bias
+
+p = Perceptron(weights=custom_weights, bias=custom_bias)
+p.train(X_train, y_train, epochs=100, learning_rate=0.1)
+
+# Test prediction
+test_input = np.array([0, 1, 1])
+print("Prediction:", p.predict(test_input)) # Output: 0
+
+# Evaluate accuracy
+X_test = np.array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 1]])
+y_test = np.array([0, 0, 0, 1])
+
+# Predict on test data
+pred = np.array([p.predict(x) for x in X_test])
+
+# Calculate accuracy
+accuracy = np.mean(pred == y_test) * 100
+print("Accuracy:", accuracy)
