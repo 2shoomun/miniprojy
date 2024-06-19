@@ -1,34 +1,49 @@
-I.	Write a program to demonstrate BOX MODEL having the following properties 
-•	Content - The content of the box, where text and images appear
-•	Padding - Clears an area around the content. The padding is transparent
-•	Border - A border that goes around the padding and content
-•	Margin - Clears an area outside the border. The margin is transparent
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-div {
-  background-color: lightgrey;
-  width: 300px;
-  border: 15px solid green;
-  padding: 50px;
-  margin: 20px;
-}
-</style>
-</head>
-<body>
-<h2>Demonstrating the Box Model</h2>
-<p>The CSS box model is essentially a box that wraps around every HTML element. It consists of: borders, padding, margins, and the actual content. </p>
-<div>This text is the content of the box. We have added a 50px padding, 20px margin and a 15px green border. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
-</body>
-</html> 
-II.	Write a nodejs program that creates a simple HTTP server using Node.js. When a client sends a request to this server, it should respond with "Hello World!" and then end the response. The server listens on port 8080 for incoming requests.
-var http = require('http');
+#import library
+import tensorflow as tf
+import numpy as np
+from tensorflow.keras.datasets import cifar10
+from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
 
-http.createServer(function (req, res) {
-  res.whitehead(200, {'Content-Type': 'text/html'});
-  res.end('Hello World!');
-}).listen(8080);
-Note:
-Save the file on your computer: C:\Users\Your Name\myfirst.js
-The code tells the computer to write "Hello World!" if anyone (e.g. a web browser) tries to access your computer on port 8080.
+# Load the CIFAR-10 dataset
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+
+# Define the class names for easier interpretation of predictions
+cifar_10_classes = ["Airplane", "Automobile", "Bird", "Cat", "Deer", "Dog", "Frog", "Horse", "Ship", "Truck"]
+
+# Display an example image from the dataset
+plt.imshow(x_train[0])
+plt.title(cifar_10_classes[y_train[0][0]])
+plt.axis("off")
+plt.show()
+
+# Normalize the pixel values to be between 0 and 1
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+# Convert the class labels to one-hot encoded vectors
+one_hot_encoder = OneHotEncoder()
+y_train = one_hot_encoder.fit_transform(y_train).toarray()
+y_test = one_hot_encoder.transform(y_test).toarray()
+
+# Build the softmax model
+softmax_model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(input_shape=(32, 32, 3)),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+softmax_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model for 20 epochs with a batch size of 64, using a validation split for evaluation
+softmax_model.fit(x_train, y_train, epochs=20, batch_size=64, validation_data=(x_test, y_test))
+
+# Make a prediction using the trained model
+new_image = x_test[10]
+plt.imshow(new_image)
+plt.axis("off")
+plt.show()
+
+img = np.expand_dims(new_image, axis=0)
+pred = softmax_model.predict(img)
+prediction = np.argmax(pred)
+print("Prediction:", cifar_10_classes[prediction])
